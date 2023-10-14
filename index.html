@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio de Números</title>
+
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-white flex flex-col items-center justify-center h-screen">
+    <!-- Logo Centralizada -->
+    <div class="text-4xl font-bold mb-4">
+        <img src="src/logo_pib_roca_grande.jpg" alt="Logo" class="mx-auto w-32 h-32" />
+    </div>
+    <!-- Formulário para Sortear Números -->
+    <div class="bg-white p-4 rounded-lg shadow-lg text-center">
+        <div class="flex items-center justify-center mb-4">
+            <div class="mb-4">
+                <span id="labelSortearNumero" class="text-lg font-semibold">
+                    Sortear Número
+                </span>
+                <button id="editarLabel" class="text-white font-bold py-2 px-1 rounded-full ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="13" height="13" viewBox="0 0 50 50">
+                        <path d="M 43.125 2 C 41.878906 2 40.636719 2.488281 39.6875 3.4375 L 38.875 4.25 L 45.75 11.125 C 45.746094 11.128906 46.5625 10.3125 46.5625 10.3125 C 48.464844 8.410156 48.460938 5.335938 46.5625 3.4375 C 45.609375 2.488281 44.371094 2 43.125 2 Z M 37.34375 6.03125 C 37.117188 6.0625 36.90625 6.175781 36.75 6.34375 L 4.3125 38.8125 C 4.183594 38.929688 4.085938 39.082031 4.03125 39.25 L 2.03125 46.75 C 1.941406 47.09375 2.042969 47.457031 2.292969 47.707031 C 2.542969 47.957031 2.90625 48.058594 3.25 47.96875 L 10.75 45.96875 C 10.917969 45.914063 11.070313 45.816406 11.1875 45.6875 L 43.65625 13.25 C 44.054688 12.863281 44.058594 12.226563 43.671875 11.828125 C 43.285156 11.429688 42.648438 11.425781 42.25 11.8125 L 9.96875 44.09375 L 5.90625 40.03125 L 38.1875 7.75 C 38.488281 7.460938 38.578125 7.011719 38.410156 6.628906 C 38.242188 6.246094 37.855469 6.007813 37.4375 6.03125 C 37.40625 6.03125 37.375 6.03125 37.34375 6.03125 Z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="minValue" class="text-lg font-semibold">Valor Mínimo:</label>
+            <input type="number" id="minValue" class="border rounded-md px-2 py-1 mx-2" min="1" step="1" value="1">
+        </div>
+        <div class="mb-4">
+            <label for="maxValue" class="text-lg font-semibold">Valor Máximo:</label>
+            <input type="number" id="maxValue" class="border rounded-md px-2 py-1 mx-2" min="1" step="1" value="100">
+        </div>
+        <div class="mb-4">
+            <label for="repetirNumeros" class="text-lg font-semibold mr-2">Repetir Números:</label>
+            <input type="checkbox" id="repetirNumeros" class="form-checkbox h-5 w-5 text-blue-500">
+        </div>
+        <button id="sortearBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-4">
+            Sortear
+        </button>
+        <div id="numeroSorteado" class="hidden">
+            <div class="bg-green-500 w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <span id="numeroExibido" class="text-white text-2xl"></span>
+            </div>
+        </div>
+        <div id="numerosSorteados" class="text-lg font-semibold whitespace-pre-line"></div>
+    </div>
+    <script>
+        const numerosSorteados = [];
+        // Função para editar o label usando SweetAlert
+        document.getElementById("editarLabel").addEventListener("click", function () {
+            Swal.fire({
+                title: 'Editar título',
+                input: 'text',
+                inputLabel: 'Novo título:',
+                inputPlaceholder: 'Digite o novo título',
+                inputValue: document.getElementById("labelSortearNumero").textContent,
+                showCancelButton: true,
+                confirmButtonText: 'Salvar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Por favor, digite um novo título';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const novoLabel = result.value;
+                    document.getElementById("labelSortearNumero").textContent = novoLabel;
+                }
+            });
+        });
+
+        // Função para sortear um número e exibir com SweetAlert personalizado
+        document.getElementById("sortearBtn").addEventListener("click", function () {
+            const min = document.getElementById("minValue").value
+            const max = document.getElementById("maxValue").value
+            const repetirNumeros = document.getElementById("repetirNumeros").checked
+
+            if (min >= max) {
+                Swal.fire({
+                    title: 'Erro',
+                    text: 'O valor mínimo deve ser menor que o valor máximo.',
+                    icon: 'error',
+                });
+                return;
+            }
+
+            let numeroSorteado = Math.floor(Math.random() * (max - min + 1)); // Altere o intervalo conforme necessário
+            if (!repetirNumeros)
+            {
+                while(numerosSorteados.includes(numeroSorteado) && numerosSorteados.length != (max - min) + 1)
+                {
+                    numeroSorteado = Math.floor(Math.random() * (max - min + 1));  // Altere o intervalo conforme necessário
+                }
+                if(numerosSorteados.length == (max - min) + 1)
+                {
+                    Swal.fire({
+                        title: 'Erro',
+                        text: 'Não há mais números disponíveis para sortear neste intervalo.',
+                        icon: 'error',
+                    });
+                    return;
+                }
+            }
+            numerosSorteados.push(numeroSorteado);
+
+            Swal.fire({
+                html: `<div class="bg-green-500 mx-auto w-16 h-16 rounded-full flex items-center justify-center">
+                            <span class="text-white text-2xl" style="display: flex; align-items: center; justify-content: center; height: 100%;">${numeroSorteado}</span>
+                       </div>`,
+                title: 'Número Sorteado:',
+                icon: 'success',
+                showCancelButton: false,
+                confirmButtonText: 'OK',
+            });
+
+            document.getElementById("numeroSorteado").classList.remove("hidden");
+            document.getElementById("numeroExibido").textContent = numeroSorteado;
+            document.getElementById("numerosSorteados").textContent = "Números Sorteados: " + numerosSorteados.join(", ");
+        });
+    </script>
+</body>
+</html>
